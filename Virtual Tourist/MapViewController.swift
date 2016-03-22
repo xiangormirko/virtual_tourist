@@ -63,26 +63,27 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             let location = sender.locationInView(mapView)
             let coordinate = mapView.convertPoint(location, toCoordinateFromView: mapView)
         
-            let annotation = MKPointAnnotation()
-            annotation.title = "View Photo Collection!"
-            annotation.coordinate = coordinate
-            mapView.addAnnotation(annotation)
+//            let annotation = MKPointAnnotation()
+//            annotation.title = "View Photo Collection!"
+//            annotation.coordinate = coordinate
+//            mapView.addAnnotation(annotation)
             persistMap()
             
             let dictionary: [String : AnyObject] = [
                 Pin.Keys.Title : "View Photo Collection!",
-                Pin.Keys.Lat : annotation.coordinate.latitude,
-                Pin.Keys.Long : annotation.coordinate.longitude
+                Pin.Keys.Lat : coordinate.latitude,
+                Pin.Keys.Long : coordinate.longitude
             ]
             // Now we create a new Pin, using the shared Context
             let newPin = Pin(dictionary: dictionary, context: sharedContext)
             CoreDataStackManager.sharedInstance().saveContext()
+            mapView.addAnnotation(newPin)
             
             
             let parameters = [
                 "method": Flickr.Constants.METHOD_NAME,
                 "api_key": Flickr.Constants.API_KEY,
-                "bbox": Flickr.sharedInstance().createBoundingBoxString(annotation.coordinate),
+                "bbox": Flickr.sharedInstance().createBoundingBoxString(coordinate),
                 "safe_search": Flickr.Constants.SAFE_SEARCH,
                 "extras": Flickr.Constants.EXTRAS,
                 "format": Flickr.Constants.DATA_FORMAT,
@@ -93,7 +94,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                 if let error = error {
                     print(error)
                 } else {
-//                    print(JSONResult)
                     let photoContainer = JSONResult.valueForKey("photos")
                     if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
                         

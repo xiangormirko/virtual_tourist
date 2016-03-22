@@ -22,6 +22,7 @@
 		CD4EF82B1CA0735E00A31624 /* Flicker-Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD4EF82A1CA0735E00A31624 /* Flicker-Constants.swift */; };
 		CD4EF82D1CA07FD800A31624 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD4EF82C1CA07FD800A31624 /* ImageCache.swift */; };
 		CD4EF8301CA089F900A31624 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CD4EF82E1CA089F900A31624 /* Model.xcdatamodeld */; };
+		CD96CC341CA17F6500DF5344 /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD96CC331CA17F6500DF5344 /* PhotoCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 		CD4EF82A1CA0735E00A31624 /* Flicker-Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Flicker-Constants.swift"; sourceTree = "<group>"; };
 		CD4EF82C1CA07FD800A31624 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImageCache.swift; path = "../../../../Downloads/ios-persistence-2.0-step-5.3 2/CoreDataFavoriteActors/FavoriteActors/TheMovieDB/ImageCache.swift"; sourceTree = "<group>"; };
 		CD4EF82F1CA089F900A31624 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		CD96CC331CA17F6500DF5344 /* PhotoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +154,7 @@
 				CD4EF8281CA031DC00A31624 /* Flickr.swift */,
 				CD4EF82A1CA0735E00A31624 /* Flicker-Constants.swift */,
 				CD4EF8261CA02E7900A31624 /* Photo.swift */,
+				CD96CC331CA17F6500DF5344 /* PhotoCell.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 				CD0EF1461C9F244E00404CD0 /* CoreDataStackManager.swift in Sources */,
 				CD4EF8251CA0162300A31624 /* Pin.swift in Sources */,
 				CD4EF8301CA089F900A31624 /* Model.xcdatamodeld in Sources */,
+				CD96CC341CA17F6500DF5344 /* PhotoCell.swift in Sources */,
 				CD0EF1151C9F22A200404CD0 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

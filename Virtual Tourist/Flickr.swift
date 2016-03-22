@@ -49,6 +49,29 @@ class Flickr : NSObject {
         
         return task
     }
+    
+    // MARK: - All purpose task method for images
+    
+    func taskForImageWithSize(filePath: String, completionHandler: (imageData: NSData?, error: NSError?) ->  Void) -> NSURLSessionTask {
+        
+        print(filePath)
+        
+        let url = NSURL(string: filePath)
+        let request = NSURLRequest(URL: url!)
+        
+        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
+            
+            if let _ = downloadError {
+                print("error fetching image")
+            } else {
+                completionHandler(imageData: data, error: nil)
+            }
+        }
+        
+        task.resume()
+        
+        return task
+    }
 
     
     // Parsing the JSON
