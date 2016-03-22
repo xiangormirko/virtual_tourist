@@ -8,8 +8,9 @@
 
 import CoreData
 import Foundation
+import MapKit
 
-class Pin : NSManagedObject {
+class Pin : NSManagedObject, MKAnnotation {
     
     struct Keys {
         static let Lat = "lat"
@@ -18,7 +19,7 @@ class Pin : NSManagedObject {
     }
     @NSManaged var lat: Double
     @NSManaged var long: Double
-    @NSManaged var title: String
+    @NSManaged var title: String?
     @NSManaged var photos: [Photo]
     
     // 4. Include this standard Core Data init method.
@@ -33,9 +34,16 @@ class Pin : NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         // Dictionary
-        title = dictionary[Keys.Title] as! String
+        title = dictionary[Keys.Title] as? String
         lat = dictionary[Keys.Lat] as! Double
         long = dictionary[Keys.Long] as! Double
+    }
+//    var title: String? {
+//        return String(UTF8String: titleStr!)
+//    }
+    
+    var coordinate: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: lat as Double, longitude: long as Double)
     }
     
 }

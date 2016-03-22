@@ -34,8 +34,11 @@ class Photo: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         // Dictionary
+        let idStr = dictionary[Keys.ID] as! String
+        let idInt = Int(idStr)
+        
         title = dictionary[Keys.Title] as! String
-        id = dictionary[Keys.ID] as! Int
+        id = idInt!
         url_m = dictionary[Keys.Url_M] as! String
     }
     

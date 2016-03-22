@@ -26,7 +26,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         // Step 2: Perform the fetch
         do {
             try fetchedResultsController.performFetch()
-            print(fetchedResultsController.fetchedObjects)
+            for pin in fetchedResultsController.fetchedObjects! {
+                let pin = pin as! Pin
+                mapView.addAnnotation(pin)
+            }
+            
+
             
         } catch {
             print("Unresolved error \(error)")
@@ -51,6 +56,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         // Dispose of any resources that can be recreated.
     }
     
+
     @IBAction func longTap(sender: UILongPressGestureRecognizer) {
         
         if sender.state == .Ended {
@@ -69,7 +75,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                 Pin.Keys.Long : annotation.coordinate.longitude
             ]
             // Now we create a new Pin, using the shared Context
-            _ = Pin(dictionary: dictionary, context: sharedContext)
+            let newPin = Pin(dictionary: dictionary, context: sharedContext)
             CoreDataStackManager.sharedInstance().saveContext()
             
             
@@ -88,6 +94,26 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                     print(error)
                 } else {
 //                    print(JSONResult)
+                    let photoContainer = JSONResult.valueForKey("photos")
+                    if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
+                        
+                        // Parse the array of movies dictionaries
+                        let _ = photosDictionaries.map() { (dictionary: [String : AnyObject]) -> Photo in
+                            let photo = Photo(dictionary: dictionary, context: self.sharedContext)
+                            
+                            photo.pin = newPin
+                            print(photo)
+                            return photo
+                        }
+                        
+                        
+                        // Save the context
+                        self.saveContext()
+                        
+                    } else {
+                        let error = NSError(domain: "Photo for Pin Parsing. Cant find photo in \(JSONResult)", code: 0, userInfo: nil)
+                        print(error)
+                    }
                 }
             }
             
@@ -144,8 +170,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         let long = defaults.doubleForKey("long")
         let latDelta = defaults.doubleForKey("latDelta")
         let longDelta = defaults.doubleForKey("longDelta")
-        
-        print(lat, long, latDelta, longDelta)
+
         
         let center = CLLocationCoordinate2D(latitude: lat, longitude: long)
         let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
@@ -181,6 +206,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         let mapCollectionController = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionMapViewController") as! CollectionMapViewController
         mapCollectionController.region = self.mapView.region
         mapCollectionController.annotation = view.annotation
+        mapCollectionController.pin = view.annotation as! Pin
         
         self.navigationController!.pushViewController(mapCollectionController, animated: true)
         

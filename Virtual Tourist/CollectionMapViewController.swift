@@ -8,9 +8,10 @@
 
 import Foundation
 import MapKit
+import CoreData
 
 
-class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
     var region : MKCoordinateRegion? = nil
     var annotation : MKAnnotation? = nil
@@ -30,8 +31,54 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         mapView.setRegion(region!, animated: true)
         mapView.setCenterCoordinate((annotation?.coordinate)!, animated: true)
         mapView.addAnnotation(annotation!)
+        
+        // Step 2: Perform the fetch
+        
+        do {
+            try fetchedResultsController.performFetch()
+            print("")
+            print("")
+            print("")
+            print("")
+            print(fetchedResultsController.fetchedObjects)
+        } catch {
+            print("Unresolved error \(error)")
+            abort()
+        }
+        // Step 6: Set the delegate to this view controller
+        fetchedResultsController.delegate = self
+
        
     }
+    
+    // MARK: - Core Data Convenience
+    
+    lazy var sharedContext: NSManagedObjectContext =  {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }()
+    
+    func saveContext() {
+        CoreDataStackManager.sharedInstance().saveContext()
+    }
+    
+    
+    // Step 1: This would be a nice place to paste the lazy fetchedResultsController
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        
+        let fetchRequest = NSFetchRequest(entityName: "Photo")
+        
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        fetchRequest.predicate = NSPredicate(format: "pin == %@", self.pin);
+        
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+            managedObjectContext: self.sharedContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil)
+        
+        return fetchedResultsController
+        
+    }()
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.photos.count
