@@ -28,6 +28,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     var updatedIndexPaths: [NSIndexPath]!
 
     
+    @IBOutlet weak var collectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var mapView: MKMapView!
     
@@ -70,56 +71,48 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         // Step 6: Set the delegate to this view controller
         fetchedResultsController.delegate = self
 
-       
+        updateBottomButton()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
         if pin.photos.isEmpty {
-            
-            let parameters = [
-                "method": Flickr.Constants.METHOD_NAME,
-                "api_key": Flickr.Constants.API_KEY,
-                "bbox": Flickr.sharedInstance().createBoundingBoxString(annotation!.coordinate),
-                "safe_search": Flickr.Constants.SAFE_SEARCH,
-                "extras": Flickr.Constants.EXTRAS,
-                "format": Flickr.Constants.DATA_FORMAT,
-                "nojsoncallback": Flickr.Constants.NO_JSON_CALLBACK
-            ]
-            
-            Flickr.sharedInstance().taskForResource(parameters) {JSONResult, error  in
-                if let error = error {
-                    print(error)
-                } else {
-                    //                    print(JSONResult)
-                    let photoContainer = JSONResult.valueForKey("photos")
-                    if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
-                        
-                        // Parse the array of movies dictionaries
-                        let _ = photosDictionaries.map() { (dictionary: [String : AnyObject]) -> Photo in
-                            let photo = Photo(dictionary: dictionary, context: self.sharedContext)
-                            
-                            photo.pin = self.pin
-                            print("no image donwloading: \(photo)")
-                            return photo
-                        }
-                        
-                        
-                        // Save the context
-                        self.saveContext()
-                        
-                    } else {
-                        let error = NSError(domain: "Photo for Pin Parsing. Cant find photo in \(JSONResult)", code: 0, userInfo: nil)
-                        print(error)
-                    }
-                }
-            }
-
+            fetchData()
         }
-        CoreDataStackManager.sharedInstance().saveContext()
-        collectionView?.reloadData()
+//        CoreDataStackManager.sharedInstance().saveContext()
+//        collectionView?.reloadData()
     }
+    
+    
+    // Action to create a new set of photo collection
+    @IBAction func newCollection(sender: AnyObject) {
+    
+        
+        if selectedIndexes.isEmpty {
+            for obj in fetchedResultsController.fetchedObjects! {
+                let object = obj as! Photo
+                self.sharedContext.deleteObject(object)
+            }
+            saveContext()
+            
+            fetchData()
+            do {
+                try fetchedResultsController.performFetch()
+                
+            } catch {
+                print("Unresolved error \(error)")
+                abort()
+            }
+        } else {
+            
+            //if pics are selected, delete selected photos
+            deleteSelectedPhotos()
+        }
+        
+
+    }
+    
     
     // MARK: - Core Data Convenience
     
@@ -156,6 +149,8 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     
     func configureCell(cell: PhotoCell, atIndexPath indexPath: NSIndexPath) {
         
+        let photoImage = UIImage(named: "placeholder.png")
+        cell.photoPanel!.image = photoImage
         let photo = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
 
         // If the cell is "selected" it's color panel is grayed out
@@ -166,7 +161,12 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         cell.photoPanel.layer.borderWidth = 3
         cell.photoPanel.layer.borderColor = UIColor.whiteColor().CGColor
         
-        cell.photoPanel!.image = nil
+        if let _ = selectedIndexes.indexOf(indexPath) {
+            print("alpha changed")
+            cell.photoPanel.alpha = 0.2
+        } else {
+            cell.photoPanel.alpha = 1.0
+        }
         
         if photo.url_m == "" {
             print("no image")
@@ -188,11 +188,8 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
                     
                     // update the model, so that the infrmation gets cashed
                     photo.pinImage = image
-                    print("image fetched")
                     self.saveContext()
                     // update the cell later, on the main thread
-                    print("image fetched")
-                    
                     dispatch_async(dispatch_get_main_queue()) {
                         cell.photoPanel!.image = image
                         
@@ -224,21 +221,25 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-//        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCell
+        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCell
+        // Whenever a cell is tapped we will toggle its presence in the selectedIndexes array
+        if let index = selectedIndexes.indexOf(indexPath) {
+            selectedIndexes.removeAtIndex(index)
+        } else {
+            selectedIndexes.append(indexPath)
+        }
         
+        // Then reconfigure the cell
+        configureCell(cell, atIndexPath: indexPath)
         
-        // present detail view when a cell is pressed
-//        let detailController = self.storyboard!.instantiateViewControllerWithIdentifier("MemeDetailViewController") as! MemeDetailViewController
-//        detailController.meme = self.memes[indexPath.row]
-//        self.navigationController!.pushViewController(detailController, animated: true)
+        // And update the buttom button
+        updateBottomButton()
     }
     
 
     
     // MARK: - Fetched Results Controller Delegate
-    
-    // Whenever changes are made to Core Data the following three methods are invoked. This first method is used to create
-    // three fresh arrays to record the index paths that will be changed.
+
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
         // We are about to handle some new changes. Start out with empty arrays for each change type
         insertedIndexPaths = [NSIndexPath]()
@@ -248,38 +249,28 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         print("in controllerWillChangeContent")
     }
     
-    // The second method may be called multiple times, once for each Photo object that is added, deleted, or changed.
-    // We store the incex paths into the three arrays.
+
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
         switch type{
             
         case .Insert:
-            print("Insert an item")
             insertedIndexPaths.append(newIndexPath!)
             break
         case .Delete:
-            print("Delete an item")
             deletedIndexPaths.append(indexPath!)
             break
         case .Update:
-            print("Update an item.")
             updatedIndexPaths.append(indexPath!)
             break
         case .Move:
-            print("Move an item. We don't expect to see this in this app.")
             break
         default:
             break
         }
     }
     
-    // This method is invoked after all of the changed in the current batch have been collected
-    // into the three index path arrays (insert, delete, and upate). We now need to loop through the
-    // arrays and perform the changes.
-    //
-    // The most interesting thing about the method is the collection view's "performBatchUpdates" method.
-    // Notice that all of the changes are performed inside a closure that is handed to the collection view.
+
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         
         print("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
@@ -299,6 +290,94 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
             }
             
             }, completion: nil)
+    }
+    
+    func fetchData() {
+        
+        
+        let parameters = Flickr.sharedInstance().defautlParams(self.pin)
+        
+        Flickr.sharedInstance().taskForResource(parameters) {JSONResult, error  in
+            if let error = error {
+                print(error)
+            } else {
+                let photoContainer = JSONResult.valueForKey("photos")
+                let photoPages = photoContainer?.valueForKey("pages")
+                
+                if photoPages as! Int > 1 {
+                    //If more than 1 page select a random page using convenience method
+                    
+                    let params = Flickr.sharedInstance().randomPageParams(self.pin, pages: photoPages as! Int)
+                    
+                    Flickr.sharedInstance().taskForResource(params) {JSONResult, error  in
+                        if let error = error {
+                            print(error)
+                        } else {
+                            let photoContainer = JSONResult.valueForKey("photos")
+                            if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
+                                
+                                // Parse the array of movies dictionaries
+                                let _ = photosDictionaries.map() { (dictionary: [String : AnyObject]) -> Photo in
+                                    let photo = Photo(dictionary: dictionary, context: self.sharedContext)
+                                    
+                                    photo.pin = self.pin
+                                    return photo
+                                }
+                                
+                                // Save the context
+                                self.saveContext()
+                                
+                            } else {
+                                let error = NSError(domain: "Photo for Pin Parsing. Cant find photo in \(JSONResult)", code: 0, userInfo: nil)
+                                print(error)
+                            }
+                        }
+                    }
+                } else {
+                
+                if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
+                    
+                    // Parse the array of movies dictionaries
+                    let _ = photosDictionaries.map() { (dictionary: [String : AnyObject]) -> Photo in
+                        let photo = Photo(dictionary: dictionary, context: self.sharedContext)
+                        
+                        photo.pin = self.pin
+                        print("no image donwloading: \(photo)")
+                        return photo
+                    }
+                    
+                    // Save the context
+                    self.saveContext()
+                    
+                } else {
+                    let error = NSError(domain: "Photo for Pin Parsing. Cant find photo in \(JSONResult)", code: 0, userInfo: nil)
+                    print(error)
+                }
+                }
+            }
+        }
+    }
+    
+    func deleteSelectedPhotos() {
+        var photosToDelete = [Photo]()
+        
+        for indexPath in selectedIndexes {
+            photosToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
+        }
+        
+        for photo in photosToDelete {
+            sharedContext.deleteObject(photo)
+        }
+        
+        selectedIndexes = [NSIndexPath]()
+    }
+    
+    func updateBottomButton() {
+        if selectedIndexes.count > 0 {
+            collectionButton.setTitle("Remove seletcted photos", forState: UIControlState.Normal)
+        } else {
+            collectionButton.setTitle("Reload with new collection", forState: UIControlState.Normal)
+        }
     }
     
     

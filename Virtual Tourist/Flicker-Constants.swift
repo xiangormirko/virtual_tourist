@@ -25,4 +25,38 @@ extension Flickr {
         static let LON_MIN = -180.0
         static let LON_MAX = 180.0
     }
+
+    func defautlParams(pin: Pin) -> [String: AnyObject]{
+        let parameters = [
+            "method": Flickr.Constants.METHOD_NAME,
+            "api_key": Flickr.Constants.API_KEY,
+            "bbox": Flickr.sharedInstance().createBoundingBoxString(pin.coordinate),
+            "safe_search": Flickr.Constants.SAFE_SEARCH,
+            "extras": Flickr.Constants.EXTRAS,
+            "format": Flickr.Constants.DATA_FORMAT,
+            "nojsoncallback": Flickr.Constants.NO_JSON_CALLBACK,
+            "per_page": 21
+        ]
+        
+        return parameters as! [String : AnyObject]
+    }
+    
+    func randomPageParams(pin: Pin, pages: Int) -> [String: AnyObject]{
+        let pagesMax = (pages < 191) ? pages : 191;
+        let randInt = Int(arc4random_uniform(UInt32(pagesMax)))
+        
+        let parameters = [
+            "method": Flickr.Constants.METHOD_NAME,
+            "api_key": Flickr.Constants.API_KEY,
+            "bbox": Flickr.sharedInstance().createBoundingBoxString(pin.coordinate),
+            "safe_search": Flickr.Constants.SAFE_SEARCH,
+            "extras": Flickr.Constants.EXTRAS,
+            "format": Flickr.Constants.DATA_FORMAT,
+            "nojsoncallback": Flickr.Constants.NO_JSON_CALLBACK,
+            "per_page": 21,
+            "page": randInt
+        ]
+        
+        return parameters as! [String : AnyObject]
+    }
 }

@@ -12,10 +12,12 @@ import CoreData
 
 class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     
-    
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var editLabel: UILabel!
+    @IBOutlet weak var editButton: UIBarButtonItem!
     
-
+    var editMode = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
@@ -47,8 +49,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             print("no initial pref")
             return
         }
-//        mapView.setRegion(MapPersistence(), animated: true)
         
+        editLabel.hidden = true
+//
     }
 
     override func didReceiveMemoryWarning() {
@@ -80,21 +83,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             mapView.addAnnotation(newPin)
             
             
-            let parameters = [
-                "method": Flickr.Constants.METHOD_NAME,
-                "api_key": Flickr.Constants.API_KEY,
-                "bbox": Flickr.sharedInstance().createBoundingBoxString(coordinate),
-                "safe_search": Flickr.Constants.SAFE_SEARCH,
-                "extras": Flickr.Constants.EXTRAS,
-                "format": Flickr.Constants.DATA_FORMAT,
-                "nojsoncallback": Flickr.Constants.NO_JSON_CALLBACK
-            ]
+            let parameters = Flickr.sharedInstance().defautlParams(newPin)
             
             Flickr.sharedInstance().taskForResource(parameters) {JSONResult, error  in
                 if let error = error {
                     print(error)
                 } else {
                     let photoContainer = JSONResult.valueForKey("photos")
+    
                     if let photosDictionaries = photoContainer!.valueForKey("photo") as? [[String : AnyObject]] {
                         
                         // Parse the array of movies dictionaries
@@ -117,6 +113,23 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                 }
             }
             
+        }
+    }
+    
+    @IBAction func editAction(sender: AnyObject) {
+
+        if editMode {
+            editMode = false
+        } else {
+            editMode = true
+        }
+        
+        if editMode {
+            editButton.title = "Done"
+            editLabel.hidden = false
+        } else {
+            editButton.title = "Edit"
+            editLabel.hidden = true
         }
     }
     
@@ -179,6 +192,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         return region
     }
     
+    
+    
     // pin annotations
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -200,9 +215,18 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         return pinView
     }
     
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        if editMode == true {
+            let pin = view.annotation as! Pin
+            sharedContext.deleteObject(pin)
+            saveContext()
+            mapView.removeAnnotation(pin)
+        }
+    }
+    
     // pin callout press action
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-            print("pin tapped")
+        print("pin annotation tapped")
         let mapCollectionController = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionMapViewController") as! CollectionMapViewController
         mapCollectionController.region = self.mapView.region
         mapCollectionController.annotation = view.annotation

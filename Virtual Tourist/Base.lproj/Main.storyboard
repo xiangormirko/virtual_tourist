@@ -25,17 +25,50 @@
                                     <outletCollection property="gestureRecognizers" destination="FuR-2x-H3A" appends="YES" id="FIf-qK-tMq"/>
                                 </connections>
                             </mapView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap pin to remove" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xV1-Lh-v5a">
+                                <rect key="frame" x="0.0" y="551" width="600" height="49"/>
+                                <color key="backgroundColor" red="0.91602641574585641" green="0.55503554426988611" blue="0.50026579118406622" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="49" id="NTV-Wa-zlb"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="AvenirNext-Bold" family="Avenir Next" pointSize="20"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="xV1-Lh-v5a" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="7Uj-ZI-b5Z"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="xV1-Lh-v5a" secondAttribute="trailing" constant="-20" id="Ld1-yi-GbJ"/>
+                            <constraint firstItem="xV1-Lh-v5a" firstAttribute="leading" secondItem="ttl-QT-F6L" secondAttribute="leading" id="Mgl-jp-7Rs"/>
                             <constraint firstItem="ttl-QT-F6L" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Tyx-TM-tgb"/>
                             <constraint firstItem="ttl-QT-F6L" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="bbl-fS-ExH"/>
+                            <constraint firstItem="xV1-Lh-v5a" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="g8R-dg-iiO"/>
+                            <constraint firstItem="xV1-Lh-v5a" firstAttribute="trailing" secondItem="ttl-QT-F6L" secondAttribute="trailing" id="gSl-Zm-z02"/>
+                            <constraint firstItem="xV1-Lh-v5a" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="462" id="j6p-JV-mFg"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="xV1-Lh-v5a" secondAttribute="bottom" id="jkk-dq-rCO"/>
                             <constraint firstItem="ttl-QT-F6L" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="uhL-fE-3gp"/>
                             <constraint firstAttribute="trailing" secondItem="ttl-QT-F6L" secondAttribute="trailing" id="xpb-gL-u9g"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="7Uj-ZI-b5Z"/>
+                                <exclude reference="Mgl-jp-7Rs"/>
+                                <exclude reference="gSl-Zm-z02"/>
+                                <exclude reference="j6p-JV-mFg"/>
+                            </mask>
+                        </variation>
                     </view>
-                    <navigationItem key="navigationItem" id="Jdl-LO-pzz"/>
+                    <navigationItem key="navigationItem" id="Jdl-LO-pzz">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="nfR-wX-h3d">
+                            <connections>
+                                <action selector="editAction:" destination="BYZ-38-t0r" id="gfy-Rf-qql"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
+                        <outlet property="editButton" destination="nfR-wX-h3d" id="3Jy-W2-Ghx"/>
+                        <outlet property="editLabel" destination="xV1-Lh-v5a" id="FGs-hu-vTw"/>
                         <outlet property="mapView" destination="ttl-QT-F6L" id="6uN-RJ-9hn"/>
                     </connections>
                 </viewController>
@@ -112,10 +145,26 @@
                                     <outlet property="delegate" destination="1jB-nI-Jy5" id="b9D-83-4Rh"/>
                                 </connections>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D6O-YF-rgf">
+                                <rect key="frame" x="0.0" y="551" width="600" height="49"/>
+                                <color key="backgroundColor" red="0.44326111564465243" green="0.69534901529416282" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="600" id="YcN-Sd-6fy"/>
+                                    <constraint firstAttribute="height" constant="49" id="g3J-md-RX8"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="AvenirNext-Bold" family="Avenir Next" pointSize="15"/>
+                                <state key="normal" title="New Collection">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="newCollection:" destination="1jB-nI-Jy5" eventType="touchUpInside" id="aHc-aG-zP9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="rhV-S6-XLE" firstAttribute="top" secondItem="FIx-Lw-Dyd" secondAttribute="bottom" constant="417" id="Ewm-Rl-Nou"/>
+                            <constraint firstItem="D6O-YF-rgf" firstAttribute="centerX" secondItem="O5H-ih-0dm" secondAttribute="centerX" id="IZ3-K8-Ukd"/>
                             <constraint firstItem="FIx-Lw-Dyd" firstAttribute="top" secondItem="A4y-u2-2q5" secondAttribute="top" id="Ok5-2Q-Mff"/>
                             <constraint firstItem="O5H-ih-0dm" firstAttribute="bottom" secondItem="rhV-S6-XLE" secondAttribute="top" id="aNx-PY-1kD"/>
                             <constraint firstItem="O5H-ih-0dm" firstAttribute="leading" secondItem="FIx-Lw-Dyd" secondAttribute="leading" id="cKJ-j7-Wg1"/>
@@ -123,9 +172,11 @@
                             <constraint firstItem="O5H-ih-0dm" firstAttribute="trailing" secondItem="FIx-Lw-Dyd" secondAttribute="trailing" id="eya-nK-m2F"/>
                             <constraint firstItem="O5H-ih-0dm" firstAttribute="leading" secondItem="A4y-u2-2q5" secondAttribute="leading" id="hmM-G6-juq"/>
                             <constraint firstAttribute="trailing" secondItem="FIx-Lw-Dyd" secondAttribute="trailing" id="pc1-mZ-EfT"/>
+                            <constraint firstItem="rhV-S6-XLE" firstAttribute="top" secondItem="D6O-YF-rgf" secondAttribute="bottom" id="ytJ-9m-m0Z"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="collectionButton" destination="D6O-YF-rgf" id="ChD-v7-5xv"/>
                         <outlet property="collectionView" destination="O5H-ih-0dm" id="TP1-Hv-k5P"/>
                         <outlet property="mapView" destination="FIx-Lw-Dyd" id="5Vr-y1-izg"/>
                     </connections>
