@@ -48,7 +48,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         if (NSUserDefaults.standardUserDefaults().doubleForKey("lat") != 0.0 && NSUserDefaults.standardUserDefaults().doubleForKey("long") != 0.0) {
             mapView.setRegion(mapPersistence(), animated: true)
         } else {
-            print("no initial pref")
             return
         }
         
@@ -163,7 +162,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
     
     // Persist map preferences: zoom, center
     func persistMap() {
-        print("Persisting map!")
         let lat = mapView.region.center.latitude
         let long = mapView.region.center.longitude
         
@@ -230,7 +228,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
     
     // pin callout press action to view collection
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        print("pin annotation tapped")
         let mapCollectionController = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionMapViewController") as! CollectionMapViewController
         mapCollectionController.region = self.mapView.region
         mapCollectionController.annotation = view.annotation

@@ -164,7 +164,6 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         
         // if cell is selected, reduce alpha
         if let _ = selectedIndexes.indexOf(indexPath) {
-            print("alpha changed")
             cell.photoPanel.alpha = 0.2
         } else {
             cell.photoPanel.alpha = 1.0
@@ -174,7 +173,6 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
             print("no image")
         } else if photo.pinImage != nil {
             cell.photoPanel!.image = photo.pinImage
-            print("photo pin image: \(photo.pinImage)")
         }
         else {
             // Start the task that will eventually download the image
@@ -246,8 +244,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
-        
-        print("in controllerWillChangeContent")
+ 
     }
     
 
@@ -341,7 +338,6 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
                         let photo = Photo(dictionary: dictionary, context: self.sharedContext)
                         
                         photo.pin = self.pin
-                        print("no image donwloading: \(photo)")
                         return photo
                     }
                     

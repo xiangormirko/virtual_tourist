@@ -36,14 +36,11 @@ class Flickr : NSObject {
         let url = NSURL(string: urlString)!
         let request = NSURLRequest(URL: url)
         
-        print(url)
-        
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             
             if let error = downloadError {
                 print(error)
             } else {
-                print("Step 3 - taskForResource's completionHandler is invoked.")
                 Flickr.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
             }
         }
@@ -56,8 +53,6 @@ class Flickr : NSObject {
     // MARK: - All purpose task method for images
     
     func taskForImageWithSize(filePath: String, completionHandler: (imageData: NSData?, error: NSError?) ->  Void) -> NSURLSessionTask {
-        
-        print(filePath)
         
         let url = NSURL(string: filePath)
         let request = NSURLRequest(URL: url!)
@@ -93,7 +88,6 @@ class Flickr : NSObject {
         if let error = parsingError {
             completionHandler(result: nil, error: error)
         } else {
-            print("Step 4 - parseJSONWithCompletionHandler is invoked.")
             completionHandler(result: parsedResult, error: nil)
         }
     }
