@@ -10,6 +10,9 @@ import Foundation
 import MapKit
 
 class Flickr : NSObject {
+    // All convenience class to interact with Flickr API
+    
+    
     typealias CompletionHander = (result: AnyObject!, error: NSError?) -> Void
     var session: NSURLSession
     

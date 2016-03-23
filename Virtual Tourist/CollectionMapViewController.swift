@@ -13,6 +13,7 @@ import CoreData
 
 class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
+    // track selected inded
     var selectedIndexes = [NSIndexPath]()
     
     var region : MKCoordinateRegion? = nil
@@ -51,7 +52,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        mapView.delegate = self
+
         collectionView.delegate = self
         collectionView.dataSource = self
     
@@ -59,7 +60,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         mapView.setCenterCoordinate((annotation?.coordinate)!, animated: true)
         mapView.addAnnotation(annotation!)
         
-        // Step 2: Perform the fetch
+        // Perform the fetch
         
         do {
             try fetchedResultsController.performFetch()
@@ -68,7 +69,8 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
             print("Unresolved error \(error)")
             abort()
         }
-        // Step 6: Set the delegate to this view controller
+        
+        // Set the delegate to this view controller
         fetchedResultsController.delegate = self
 
         updateBottomButton()
@@ -80,8 +82,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         if pin.photos.isEmpty {
             fetchData()
         }
-//        CoreDataStackManager.sharedInstance().saveContext()
-//        collectionView?.reloadData()
+
     }
     
     
@@ -125,7 +126,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     }
     
     
-    // Step 1: This would be a nice place to paste the lazy fetchedResultsController
+    // This would be a nice place to paste the lazy fetchedResultsController
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         
@@ -147,20 +148,21 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
         return self.fetchedResultsController.sections?.count ?? 0
     }
     
+    
+    // Convenience method to set cell UI
     func configureCell(cell: PhotoCell, atIndexPath indexPath: NSIndexPath) {
-        
+    
         let photoImage = UIImage(named: "placeholder.png")
         cell.photoPanel!.image = photoImage
         let photo = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-
-        // If the cell is "selected" it's color panel is grayed out
-        // we use the Swift `find` function to see if the indexPath is in the array
         cell.photoPanel.contentMode = UIViewContentMode.ScaleAspectFill
         
         // Custom white border
         cell.photoPanel.layer.borderWidth = 3
         cell.photoPanel.layer.borderColor = UIColor.whiteColor().CGColor
         
+        
+        // if cell is selected, reduce alpha
         if let _ = selectedIndexes.indexOf(indexPath) {
             print("alpha changed")
             cell.photoPanel.alpha = 0.2
@@ -210,7 +212,6 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
 
         //deque and use cell
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCell
@@ -272,9 +273,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     
 
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        
-        print("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
-        
+        // perform batch update
         collectionView.performBatchUpdates({() -> Void in
             
             for indexPath in self.insertedIndexPaths {
@@ -293,7 +292,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     }
     
     func fetchData() {
-        
+        // Convenience method to fetch data if not present, if multiple pages, select random page
         
         let parameters = Flickr.sharedInstance().defautlParams(self.pin)
         

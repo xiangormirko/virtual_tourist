@@ -10,6 +10,8 @@ import Foundation
 
 extension Flickr {
     
+    // Constants and params to be used by Flicker API
+    
     struct Constants {
         static let BASE_URL = "https://api.flickr.com/services/rest/"
         static let METHOD_NAME = "flickr.photos.search"

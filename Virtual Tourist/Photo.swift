@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 
 class Photo: NSManagedObject {
-    
+    // Custom Core Data Photo class
     struct Keys {
         static let ID = "id"
         static let Url_M = "url_m"
@@ -42,6 +42,7 @@ class Photo: NSManagedObject {
         url_m = dictionary[Keys.Url_M] as! String
     }
     
+    // UIImage storage
     var pinImage: UIImage? {
         
         get {

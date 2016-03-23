@@ -11,7 +11,7 @@ import UIKit
 
 class PhotoCell: UICollectionViewCell {
     
-    
+    // Custom cell with ability to cancel tasks
     @IBOutlet weak var photoPanel: UIImageView!
     
     var taskToCancelifCellIsReused: NSURLSessionTask? {

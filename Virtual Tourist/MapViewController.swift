@@ -22,6 +22,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         super.viewDidLoad()
         mapView.delegate = self
         
+        // sign up for resignation activities
         let notificationCenter = NSNotificationCenter.defaultCenter()
         notificationCenter.addObserver(self, selector: "persistMap", name: UIApplicationWillResignActiveNotification, object: nil)
         
@@ -43,6 +44,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         // Step 9: set the fetchedResultsController.delegate = self
         fetchedResultsController.delegate = self
         
+        // if NSUserDefaults found for map zoom preferences, set them
         if (NSUserDefaults.standardUserDefaults().doubleForKey("lat") != 0.0 && NSUserDefaults.standardUserDefaults().doubleForKey("long") != 0.0) {
             mapView.setRegion(mapPersistence(), animated: true)
         } else {
@@ -50,6 +52,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             return
         }
         
+        // edit label initially hidden
         editLabel.hidden = true
 //
     }
@@ -59,17 +62,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         // Dispose of any resources that can be recreated.
     }
     
-
+    
+    // Recognize long taps to drop a pin
     @IBAction func longTap(sender: UILongPressGestureRecognizer) {
         
         if sender.state == .Ended {
             let location = sender.locationInView(mapView)
             let coordinate = mapView.convertPoint(location, toCoordinateFromView: mapView)
-        
-//            let annotation = MKPointAnnotation()
-//            annotation.title = "View Photo Collection!"
-//            annotation.coordinate = coordinate
-//            mapView.addAnnotation(annotation)
+            
+            // persist map zoom level
             persistMap()
             
             let dictionary: [String : AnyObject] = [
@@ -82,9 +83,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             CoreDataStackManager.sharedInstance().saveContext()
             mapView.addAnnotation(newPin)
             
-            
+            // Convenience params for Flicker API request
             let parameters = Flickr.sharedInstance().defautlParams(newPin)
             
+            
+            // Request using convenience method
             Flickr.sharedInstance().taskForResource(parameters) {JSONResult, error  in
                 if let error = error {
                     print(error)
@@ -97,8 +100,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                         let _ = photosDictionaries.map() { (dictionary: [String : AnyObject]) -> Photo in
                             let photo = Photo(dictionary: dictionary, context: self.sharedContext)
                             
+                            // Associate photos with Pin
                             photo.pin = newPin
-                            print(photo)
                             return photo
                         }
                         
@@ -118,12 +121,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
     
     @IBAction func editAction(sender: AnyObject) {
 
+        // reconize and switch edit mode
         if editMode {
             editMode = false
         } else {
             editMode = true
         }
         
+        // set relative UI
         if editMode {
             editButton.title = "Done"
             editLabel.hidden = false
@@ -143,8 +148,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         CoreDataStackManager.sharedInstance().saveContext()
     }
     
-    
-    // Step 1: This would be a nice place to paste the lazy fetchedResultsController
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Pin")
@@ -215,6 +218,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         return pinView
     }
     
+    // If pin is touched in edit mode, remove it
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         if editMode == true {
             let pin = view.annotation as! Pin
@@ -224,7 +228,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         }
     }
     
-    // pin callout press action
+    // pin callout press action to view collection
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         print("pin annotation tapped")
         let mapCollectionController = self.storyboard!.instantiateViewControllerWithIdentifier("CollectionMapViewController") as! CollectionMapViewController

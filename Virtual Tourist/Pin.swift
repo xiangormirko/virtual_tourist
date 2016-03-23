@@ -11,7 +11,8 @@ import Foundation
 import MapKit
 
 class Pin : NSManagedObject, MKAnnotation {
-    
+    // Custom Core Data Pin class also conforms to MKAnnotation class
+
     struct Keys {
         static let Lat = "lat"
         static let Long = "long"
@@ -38,9 +39,6 @@ class Pin : NSManagedObject, MKAnnotation {
         lat = dictionary[Keys.Lat] as! Double
         long = dictionary[Keys.Long] as! Double
     }
-//    var title: String? {
-//        return String(UTF8String: titleStr!)
-//    }
     
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: lat as Double, longitude: long as Double)
