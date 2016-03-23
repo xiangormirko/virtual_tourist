@@ -14,14 +14,13 @@ class PhotoCell: UICollectionViewCell {
     
     @IBOutlet weak var photoPanel: UIImageView!
     
-    
-    var color: UIColor {
-        set {
-            self.photoPanel.backgroundColor = UIColor.whiteColor()
-        }
+    var taskToCancelifCellIsReused: NSURLSessionTask? {
         
-        get {
-            return self.photoPanel.backgroundColor ?? UIColor.whiteColor()
+        didSet {
+            if let taskToCancel = oldValue {
+                taskToCancel.cancel()
+            }
         }
     }
+    
 }

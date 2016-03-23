@@ -45,11 +45,11 @@ class Photo: NSManagedObject {
     var pinImage: UIImage? {
         
         get {
-            return Flickr.Caches.imageCache.imageWithIdentifier(url_m)
+            return Flickr.Caches.imageCache.imageWithIdentifier("\(id).png")
         }
         
         set {
-            Flickr.Caches.imageCache.storeImage(newValue, withIdentifier: url_m)
+            Flickr.Caches.imageCache.storeImage(newValue, withIdentifier: "\(id).png")
         }
     }
     
