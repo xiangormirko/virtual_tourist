@@ -17,10 +17,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
     @IBOutlet weak var editButton: UIBarButtonItem!
     
     var editMode = false
+    var currentPin: Pin!
+    var tempAnnotation = MKPointAnnotation()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        
+        // edit label initially hidden
+        editLabel.hidden = true
         
         // sign up for resignation activities
         let notificationCenter = NSNotificationCenter.defaultCenter()
@@ -50,10 +55,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
         } else {
             return
         }
-        
-        // edit label initially hidden
-        editLabel.hidden = true
-//
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -65,17 +67,48 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
     // Recognize long taps to drop a pin
     @IBAction func longTap(sender: UILongPressGestureRecognizer) {
         
-        if sender.state == .Ended {
+        
+        switch sender.state {
+        
+        case .Began:
+            
+            // create a temporary annotaion point to display
+            
             let location = sender.locationInView(mapView)
             let coordinate = mapView.convertPoint(location, toCoordinateFromView: mapView)
             
+            tempAnnotation.coordinate = coordinate
+
+            dispatch_async(dispatch_get_main_queue(), {
+                self.mapView.addAnnotation(self.tempAnnotation)
+            })
+            break
+            
+        case .Changed:
+            
+                // track annotation changes
+                let location = sender.locationInView(mapView)
+                let coordinate = mapView.convertPoint(location, toCoordinateFromView: mapView)
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    self.tempAnnotation.coordinate = coordinate
+                })
+            
+        
+        
+        case .Ended:
+            
+            
+            // remove temp annotation and create a real Pin instance
+            mapView.removeAnnotation(tempAnnotation)
+        
             // persist map zoom level
             persistMap()
             
             let dictionary: [String : AnyObject] = [
                 Pin.Keys.Title : "View Photo Collection!",
-                Pin.Keys.Lat : coordinate.latitude,
-                Pin.Keys.Long : coordinate.longitude
+                Pin.Keys.Lat : tempAnnotation.coordinate.latitude,
+                Pin.Keys.Long : tempAnnotation.coordinate.longitude
             ]
             // Now we create a new Pin, using the shared Context
             let newPin = Pin(dictionary: dictionary, context: sharedContext)
@@ -115,7 +148,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
                 }
             }
             
+        default:
+            return
+            
         }
+
     }
     
     @IBAction func editAction(sender: AnyObject) {
@@ -207,6 +244,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             pinView!.canShowCallout = true
             pinView!.pinTintColor = UIColor.redColor()
             pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
+            pinView!.draggable = true
+            pinView!.animatesDrop = true
         }
         else {
             pinView!.annotation = annotation
@@ -223,8 +262,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsCo
             sharedContext.deleteObject(pin)
             saveContext()
             mapView.removeAnnotation(pin)
+            
         }
     }
+    
+    
     
     // pin callout press action to view collection
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {

@@ -44,7 +44,7 @@ extension Flickr {
     }
     
     func randomPageParams(pin: Pin, pages: Int) -> [String: AnyObject]{
-        let pagesMax = (pages < 191) ? pages : 191;
+        let pagesMax = (pages < 80) ? pages : 80;
         let randInt = Int(arc4random_uniform(UInt32(pagesMax)))
         
         let parameters = [

@@ -18,8 +18,7 @@ class CollectionMapViewController: UIViewController, MKMapViewDelegate, UICollec
     
     var region : MKCoordinateRegion? = nil
     var annotation : MKAnnotation? = nil
-    
-    
+        
     var photos = []
     var pin: Pin!
     

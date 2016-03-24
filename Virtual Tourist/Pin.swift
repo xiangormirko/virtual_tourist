@@ -28,6 +28,7 @@ class Pin : NSManagedObject, MKAnnotation {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
+        
     init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
         
         // Core Data
@@ -43,5 +44,6 @@ class Pin : NSManagedObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: lat as Double, longitude: long as Double)
     }
+    
     
 }

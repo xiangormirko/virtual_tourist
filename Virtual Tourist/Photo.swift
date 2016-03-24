@@ -42,6 +42,12 @@ class Photo: NSManagedObject {
         url_m = dictionary[Keys.Url_M] as! String
     }
     
+    // delete elements in documents dir at deletion
+    override func prepareForDeletion() {
+        pinImage = nil
+    }
+
+    
     // UIImage storage
     var pinImage: UIImage? {
         
